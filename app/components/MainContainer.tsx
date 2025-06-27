@@ -2,13 +2,16 @@
 
 import { useState } from 'react';
 import { useBookmarks } from '@/app/hooks/useBookmarks';
+import { usePerformance } from '@/app/hooks/usePerformance';
 import GeekDailyList from './GeekDailyList';
 import BookmarksList from './BookmarksList';
 import ShareToolbar from './ShareToolbar';
+import PerformancePanel from './PerformancePanel';
 
 export default function MainContainer() {
   const [currentView, setCurrentView] = useState<'articles' | 'bookmarks'>('articles');
   const { bookmarkCount } = useBookmarks();
+  const { trackEvent } = usePerformance();
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
@@ -27,7 +30,10 @@ export default function MainContainer() {
             <div className="flex flex-col sm:flex-row sm:items-center gap-4">
               <nav className="flex gap-2">
                 <button
-                  onClick={() => setCurrentView('articles')}
+                  onClick={() => {
+                    setCurrentView('articles');
+                    trackEvent('view_change', { view: 'articles' });
+                  }}
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors ${
                     currentView === 'articles'
                       ? 'bg-blue-600 text-white'
@@ -42,7 +48,10 @@ export default function MainContainer() {
                   </span>
                 </button>
                 <button
-                  onClick={() => setCurrentView('bookmarks')}
+                  onClick={() => {
+                    setCurrentView('bookmarks');
+                    trackEvent('view_change', { view: 'bookmarks', bookmarkCount });
+                  }}
                   className={`px-3 py-2 text-sm font-medium rounded-md transition-colors relative ${
                     currentView === 'bookmarks'
                       ? 'bg-blue-600 text-white'
@@ -90,6 +99,7 @@ export default function MainContainer() {
       </footer>
 
       <ShareToolbar />
+      <PerformancePanel />
     </div>
   );
 }
